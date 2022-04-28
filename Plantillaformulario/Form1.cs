@@ -7,21 +7,29 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using Plantillaformulario.Clases;
+using Plantillaformulario.Formulario;
 namespace Plantillaformulario
 {
     public partial class principal : Form
     {
+        Propiedades propiedades = new Propiedades();
         public principal()
         {
             InitializeComponent();
         }
 
         private void plantillaFormularioToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            PlantillaForm01 form01 = new PlantillaForm01();
-            form01.MdiParent = this;
-            form01.Show();
+        {           
+
+            propiedades.fullFormName = "Mantenimiento Tabla Plantilla ";
+            propiedades.FullTableName = "TablaPlantilla";
+            propiedades.FullcolumnId = "id";
+            propiedades.FullcampoDescrip = "descripcion";
+
+            formularioPlantilla  formulario = new formularioPlantilla();
+            formulario.MdiParent = this;
+            formulario.Show();
         }
     }
 }
