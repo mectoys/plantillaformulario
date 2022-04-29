@@ -14,6 +14,8 @@ namespace Plantillaformulario.Formulario
 {
     public partial class formularioPlantilla : Form
     {
+        DataSet dsdatos;
+
         Conexion conec = new Conexion();
         Propiedades propiedades = new Propiedades();
         Existingvalue existingvalue = new Existingvalue();
@@ -34,7 +36,8 @@ namespace Plantillaformulario.Formulario
         {
             Codigo.Clear();
             Descripcion.Clear();
-            CargarDatos(false, null);
+            CargarDatos();
+            Codigo.Text=  ObtainLastID().ToString();
             busqueda.Clear();
             Tipo = 0;
             Descripcion.Focus();
@@ -52,6 +55,13 @@ namespace Plantillaformulario.Formulario
  
         private void aceptar_Click(object sender, EventArgs e)
         {
+            if (Codigo.Text.Trim().Length == 0)
+            {
+                MessageBox.Show("Código no generado", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                Descripcion.Focus();
+                return;
+            }
+
             if (Descripcion.Text.Trim().Length == 0)
             {
                 MessageBox.Show("Ingresar valor", ProductName, MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -113,7 +123,7 @@ namespace Plantillaformulario.Formulario
                 connection.Close();
             }
             Tipo = 1;
-            CargarDatos(false, null);
+            CargarDatos();
 
         }
 
@@ -122,15 +132,14 @@ namespace Plantillaformulario.Formulario
             this.Dispose();
         }
 
-        private void CargarDatos(bool tieneparametro, TextBox valorBuscar)
+        private void CargarDatos( )
         {
-            string QueryWhere = tieneparametro ? $"WHERE {columnname2} LIKE '{valorBuscar.Text}%'" : "";
-
-            string QueryAccion = $"SELECT {columnname1},{columnname2} FROM {tableName} {QueryWhere}";
+            string QueryAccion = $"SELECT {columnname1},{columnname2} FROM {tableName}";
             conec.ConectarSistema();
+
             SqlDataAdapter adaptador = new SqlDataAdapter(QueryAccion, conec.CON);
 
-            DataSet dsdatos = new DataSet();
+            dsdatos = new DataSet();
             adaptador.Fill(dsdatos, "Datos");
             datos.DataSource = dsdatos;
             datos.DataMember = "Datos";
@@ -142,7 +151,7 @@ namespace Plantillaformulario.Formulario
         }
         private void Consultar()
         {
-            CargarDatos(false, null);
+            CargarDatos( );
         }
 
         private void formularioPlantilla_KeyPress(object sender, KeyPressEventArgs e)
@@ -156,6 +165,42 @@ namespace Plantillaformulario.Formulario
             Codigo.Text = datos[0, datos.CurrentCell.RowIndex].Value.ToString();
             Descripcion.Text = datos[1, datos.CurrentCell.RowIndex].Value.ToString();
             Descripcion.Focus();
+        }
+
+        private void busqueda_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Enter) BuscarInformacion(busqueda);
+        }
+
+        private void BuscarInformacion(TextBox valorBuscar)
+        {
+            DataView dv;
+            dv = new DataView(dsdatos.Tables["Datos"], columnname2 + " LIKE '*" + valorBuscar.Text.Replace("'", "") + "*' ", columnname2 + " Desc", DataViewRowState.CurrentRows);
+            datos.DataSource = dv;
+            datos.Columns[0].Visible = false;
+        }
+        private int ObtainLastID()
+        {
+          int lastID;
+                conec.ConectarSistema();
+                SqlCommand sqlCommand = new SqlCommand($"Select Ident_Current('{tableName}')+1 AS ID", conec.CON);
+
+                sqlCommand.CommandType = CommandType.Text;
+                SqlDataReader reader = sqlCommand.ExecuteReader();
+                reader.Read();
+                if (reader.HasRows)
+                {
+                    lastID = Convert.ToInt32( reader["ID"]);
+                }
+                else
+                {
+                    lastID = 0;
+                }
+                reader.Close();
+                sqlCommand.Dispose();
+                conec.DesconectarSistema();
+
+            return lastID;
         }
     }
 }

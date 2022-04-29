@@ -148,6 +148,7 @@ namespace Plantillaformulario.Formulario
             // 
             this.datos.AllowUserToAddRows = false;
             this.datos.AllowUserToDeleteRows = false;
+            this.datos.ClipboardCopyMode = System.Windows.Forms.DataGridViewClipboardCopyMode.EnableWithoutHeaderText;
             this.datos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.datos.Location = new System.Drawing.Point(12, 37);
             this.datos.Name = "datos";
@@ -163,6 +164,7 @@ namespace Plantillaformulario.Formulario
             this.busqueda.Name = "busqueda";
             this.busqueda.Size = new System.Drawing.Size(208, 20);
             this.busqueda.TabIndex = 9;
+            this.busqueda.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.busqueda_KeyPress);
             // 
             // formularioPlantilla
             // 
